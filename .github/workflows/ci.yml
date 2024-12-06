@@ -1,0 +1,42 @@
+name: Staging Deployment
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Deploy Backend to Staging
+        env:
+          SERVER: ${{ secrets.STAGING_SERVER }}
+          USER: ${{ secrets.STAGING_USER }}
+        run: |
+          cd backend
+          ./gradlew bootJar
+          scp backend/build/libs/*.jar $USER@$SERVER:/staging/backend
+          ssh $USER@$SERVER "cd /staging/backend && java -jar backend.jar"
+      - name: Deploy Frontend to Staging
+        env:
+          SERVER: ${{ secrets.STAGING_SERVER }}
+          USER: ${{ secrets.STAGING_USER }}
+        run: |
+          cd frontend
+          npm install
+          npm run build
+          rsync -avz frontend/.next/ $USER@$SERVER:/staging/frontend
+
+  manual-qa-approval:
+    name: Manual QA Approval
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Await Manual Approval
+        uses: hmarr/auto-approve-action@v3
+        with:
+          approve: false  # Requires QA approval before proceeding

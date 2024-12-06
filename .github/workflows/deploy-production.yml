@@ -1,0 +1,29 @@
+name: Backend Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Set Up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+      - name: Build Backend
+        run: |
+          cd backend
+          ./gradlew bootJar
+      - name: Deploy to Server
+        env:
+          SERVER: ${{ secrets.SERVER }}
+          USER: ${{ secrets.USER }}
+        run: |
+          scp backend/build/libs/*.jar $USER@$SERVER:/path/to/backend
+          ssh $USER@$SERVER "cd /path/to/backend && java -jar backend.jar"

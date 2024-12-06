@@ -1,0 +1,29 @@
+name: Frontend Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Set Up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+      - name: Deploy to Hosting
+        env:
+          SERVER: ${{ secrets.SERVER }}
+          USER: ${{ secrets.USER }}
+        run: |
+          rsync -avz frontend/.next/ $USER@$SERVER:/var/www/frontend
