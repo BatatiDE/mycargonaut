@@ -109,14 +109,15 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
+  
       - name: Set Up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18.18.0
-
+  
       - name: Install Dependencies and Run Cypress Tests
         run: |
           cd frontend
           npm install
           npx cypress run
+  
