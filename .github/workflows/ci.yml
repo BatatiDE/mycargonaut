@@ -1,4 +1,4 @@
-name: Staging Deployment
+name: CI Workflow
 
 on:
   push:
@@ -6,37 +6,40 @@ on:
       - develop
 
 jobs:
-  deploy-staging:
-    name: Deploy to Staging
+  test-backend:
+    name: Backend Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - name: Deploy Backend to Staging
-        env:
-          SERVER: ${{ secrets.STAGING_SERVER }}
-          USER: ${{ secrets.STAGING_USER }}
+      - name: Set Up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+      - name: Build Backend
         run: |
           cd backend
-          ./gradlew bootJar
-          scp backend/build/libs/*.jar $USER@$SERVER:/staging/backend
-          ssh $USER@$SERVER "cd /staging/backend && java -jar backend.jar"
-      - name: Deploy Frontend to Staging
-        env:
-          SERVER: ${{ secrets.STAGING_SERVER }}
-          USER: ${{ secrets.STAGING_USER }}
+          ./gradlew build
+      - name: Run Backend Tests
+        run: |
+          cd backend
+          ./gradlew test
+
+  test-frontend:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Set Up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install Frontend Dependencies
         run: |
           cd frontend
           npm install
-          npm run build
-          rsync -avz frontend/.next/ $USER@$SERVER:/staging/frontend
-
-  manual-qa-approval:
-    name: Manual QA Approval
-    needs: deploy-staging
-    runs-on: ubuntu-latest
-    steps:
-      - name: Await Manual Approval
-        uses: hmarr/auto-approve-action@v3
-        with:
-          approve: false  # Requires QA approval before proceeding
+      - name: Run Frontend Tests
+        run: |
+          cd frontend
+          npm test

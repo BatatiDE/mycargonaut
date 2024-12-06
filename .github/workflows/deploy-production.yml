@@ -1,4 +1,4 @@
-name: Backend Deployment
+name: Production Deployment
 
 on:
   push:
@@ -6,24 +6,57 @@ on:
       - main
 
 jobs:
-  deploy:
-    name: Deploy Backend
+  test-again:
+    name: Re-run Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - name: Set Up JDK
+      - name: Backend Tests
         uses: actions/setup-java@v3
         with:
           java-version: 17
-      - name: Build Backend
+        run: |
+          cd backend
+          ./gradlew test
+      - name: Frontend Tests
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+        run: |
+          cd frontend
+          npm test
+
+  deploy-backend:
+    name: Deploy Backend to Production
+    needs: test-again
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Deploy Backend
+        env:
+          SERVER: ${{ secrets.PRODUCTION_SERVER }}
+          USER: ${{ secrets.PRODUCTION_USER }}
         run: |
           cd backend
           ./gradlew bootJar
-      - name: Deploy to Server
+          scp build/libs/*.jar $USER@$SERVER:/production/backend
+          ssh $USER@$SERVER "cd /production/backend && java -jar backend.jar"
+
+  deploy-frontend:
+    name: Deploy Frontend to Production
+    needs: test-again
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Deploy Frontend
         env:
-          SERVER: ${{ secrets.SERVER }}
-          USER: ${{ secrets.USER }}
+          SERVER: ${{ secrets.PRODUCTION_SERVER }}
+          USER: ${{ secrets.PRODUCTION_USER }}
         run: |
-          scp backend/build/libs/*.jar $USER@$SERVER:/path/to/backend
-          ssh $USER@$SERVER "cd /path/to/backend && java -jar backend.jar"
+          cd frontend
+          npm install
+          npm run build
+          rsync -avz .next/ $USER@$SERVER:/production/frontend

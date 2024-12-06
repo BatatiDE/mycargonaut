@@ -1,29 +1,49 @@
-name: Frontend Deployment
+name: Staging Deployment
 
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
-  deploy:
-    name: Deploy Frontend
+  deploy-backend:
+    name: Deploy Backend to Staging
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - name: Set Up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - name: Build Frontend
+      - name: Deploy Backend
+        env:
+          SERVER: ${{ secrets.STAGING_SERVER }}
+          USER: ${{ secrets.STAGING_USER }}
+        run: |
+          cd backend
+          ./gradlew bootJar
+          scp build/libs/*.jar $USER@$SERVER:/staging/backend
+          ssh $USER@$SERVER "cd /staging/backend && java -jar backend.jar"
+
+  deploy-frontend:
+    name: Deploy Frontend to Staging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Deploy Frontend
+        env:
+          SERVER: ${{ secrets.STAGING_SERVER }}
+          USER: ${{ secrets.STAGING_USER }}
         run: |
           cd frontend
           npm install
           npm run build
-      - name: Deploy to Hosting
-        env:
-          SERVER: ${{ secrets.SERVER }}
-          USER: ${{ secrets.USER }}
-        run: |
-          rsync -avz frontend/.next/ $USER@$SERVER:/var/www/frontend
+          rsync -avz .next/ $USER@$SERVER:/staging/frontend
+
+  qa-approval:
+    name: Manual QA Approval
+    needs: [deploy-backend, deploy-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request QA Approval
+        run: echo "Awaiting QA approval. Validate at staging.example.com"
+      - name: Approve Workflow
+        uses: hmarr/auto-approve-action@v3
