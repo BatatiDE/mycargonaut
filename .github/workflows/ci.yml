@@ -13,47 +13,55 @@ jobs:
     name: Checkout Code
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
   lint-backend:
     name: Lint Backend
     runs-on: ubuntu-latest
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
-
-    - name: Set Up JDK
-      uses: actions/setup-java@v3
-      with:
-        java-version: 17
-        distribution: temurin
-
-    - name: Make gradlew executable
-      run: chmod +x ./gradlew
-
-    - name: Lint Backend Code
-      run: |
-        cd backend
-        ./gradlew check
-
-
-  test-backend:
-    name: Backend Tests
-    runs-on: ubuntu-latest
-    needs: lint-backend
+    needs: checkout-code
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
       - name: Set Up JDK
         uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: temurin
-      - name: Run Backend Tests
+
+      - name: Make gradlew Executable
         run: |
           cd backend
           chmod +x gradlew
+
+      - name: Lint Backend Code
+        run: |
+          cd backend
+          ./gradlew check
+
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    needs: lint-backend
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Make gradlew Executable
+        run: |
+          cd backend
+          chmod +x gradlew
+
+      - name: Run Backend Tests
+        run: |
+          cd backend
           ./gradlew test
 
   lint-frontend:
@@ -63,10 +71,12 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
       - name: Set Up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18.18.0
+
       - name: Lint Frontend Code
         run: |
           cd frontend
@@ -74,17 +84,19 @@ jobs:
           npm run lint
 
   test-frontend:
-    name: Frontend Tests
+    name: Test Frontend
     runs-on: ubuntu-latest
     needs: lint-frontend
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
       - name: Set Up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18.18.0
-      - name: Run Frontend Tests
+
+      - name: Install Dependencies and Run Tests
         run: |
           cd frontend
           npm install
@@ -97,11 +109,13 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
       - name: Set Up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18.18.0
-      - name: Run Cypress Tests
+
+      - name: Install Dependencies and Run Cypress Tests
         run: |
           cd frontend
           npm install
