@@ -8,6 +8,6 @@ class ExampleController {
 
     @GetMapping("/")
     fun home(): String {
-        return "Welcome to MyCargonaut!"
+        return "MyCargonaut Backend is Ready!"
     }
 }
