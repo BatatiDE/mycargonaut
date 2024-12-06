@@ -1,4 +1,4 @@
-name: Staging Deployment
+name: Deploy to Staging
 
 on:
   push:
@@ -38,12 +38,10 @@ jobs:
           npm run build
           rsync -avz .next/ $USER@$SERVER:/staging/frontend
 
-  qa-approval:
+  manual-qa:
     name: Manual QA Approval
     needs: [deploy-backend, deploy-frontend]
     runs-on: ubuntu-latest
     steps:
       - name: Request QA Approval
-        run: echo "Awaiting QA approval. Validate at staging.example.com"
-      - name: Approve Workflow
-        uses: hmarr/auto-approve-action@v3
+        run: echo "Awaiting QA approval for staging deployment."
