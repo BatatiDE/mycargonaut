@@ -27,20 +27,35 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 
+	// JWT (JSON Web Token)
+	implementation("io.jsonwebtoken:jjwt-api:0.11.5") // JWT API
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5") // JWT Implementation
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5") // JWT JSON Parsing
+
+	// Add servlet dependency
+	implementation("jakarta.servlet:jakarta.servlet-api:5.0.0")
+
 	// Kotlin and Jackson
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
 	// PostgreSQL Database Driver
 	runtimeOnly("org.postgresql:postgresql")
 
-	// Test Dependencies
+	// Logging (Optional but recommended)
+	implementation("org.springframework.boot:spring-boot-starter-logging")
+
+	// Testing Dependencies
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.springframework:spring-webflux")
 	testImplementation("org.springframework.graphql:spring-graphql-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+
+
 }
 
 kotlin {
