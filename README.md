@@ -33,48 +33,6 @@
 
 ## 📁 Project Structure
 
-```plaintext
-Let’s refine the format of the README for better visual appeal and clarity. I'll include improved headings, subheadings, lists, and formatting.
-
----
-
-### **Improved README.md**
-
-```markdown
-# 🚀 MyCargonaut
-
-**MyCargonaut** is a platform that connects users for ride-sharing and freight-sharing services. Whether you’re a user looking for a ride or a driver offering one, MyCargonaut has you covered.
-
----
-
-## 🌟 Features
-
-- **Secure Authentication**:
-  - User and driver registration and login.
-  - Password reset functionality.
-- **Ride and Freight Management**:
-  - Post ride offers or freight requests.
-  - Search and filter options based on location and date.
-- **Real-Time Tracking**:
-  - GPS-based live location sharing for drivers.
-- **Reviews and Ratings**:
-  - Feedback system for better trust and transparency.
-- **Payment Integration**:
-  - Secure payment gateway for transactions.
-
----
-
-## 🛠 Tech Stack
-
-| **Frontend**      | **Backend**         | **Database**    | **CI/CD**          |
-|--------------------|---------------------|-----------------|--------------------|
-| Next.js            | Spring Boot        | PostgreSQL      | GitHub Actions     |
-| Tailwind CSS       | Hibernate ORM      | Prisma ORM      | Docker             |
-| NextAuth.js        |                    |                 |                    |
-
----
-
-## 📁 Project Structure
 
 ```plaintext
 .
